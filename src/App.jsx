@@ -1,21 +1,31 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-
-import Home from "./components/Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Admin from "./components/Admin";
+import User from "./components/User";
 import { useAuth } from "./context/AuthProvider";
 
 function App() {
   const [authUser] = useAuth();
-  console.log("Authenticated User:", authUser);
+  const role = authUser?.role;
 
   return (
     <div>
       <Routes>
         <Route
           path="/"
-          element={authUser ? <Home /> : <Navigate to="/login" />}
+          element={
+            authUser ? (
+              role === "admin" ? (
+                <Admin />
+              ) : (
+                <User />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/login"
@@ -25,6 +35,7 @@ function App() {
           path="/signup"
           element={authUser ? <Navigate to="/" /> : <Signup />}
         />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );
