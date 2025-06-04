@@ -1,5 +1,16 @@
-import { Eye } from "lucide-react";
 import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  MenuItem,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Link as MuiLink,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import Axios from "axios";
 
@@ -9,20 +20,21 @@ function Signup() {
     lastName: "",
     email: "",
     password: "",
-    role: "user", // default role
+    role: "user",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleTogglePassword = () => {
+    setShowPassword((show) => !show);
   };
 
   const handleSignup = async () => {
@@ -31,21 +43,13 @@ function Signup() {
     try {
       const { data } = await Axios.post(
         "https://book-lib-backend.onrender.com/api/v1/user/signup",
-        {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        },
-        {
-          withCredentials: true,
-        }
+        formData,
+        { withCredentials: true }
       );
-      alert(data.message || "Signup succeeded");
+      alert(data.message || "Signup successful");
       navigate("/login");
     } catch (error) {
-      const msg = error?.response?.data?.errors || "Signup Failed";
+      const msg = error?.response?.data?.errors || "Signup failed";
       setError(msg);
     } finally {
       setLoading(false);
@@ -53,102 +57,137 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl p-6 shadow-lg">
-        <h1 className="text-center mb-6">Signup</h1>
+    <Box
+      minHeight="100vh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      px={2}
+      bgcolor="#f5f5f5"
+    >
+      <Box
+        bgcolor="white"
+        p={4}
+        borderRadius={3}
+        boxShadow={3}
+        maxWidth={400}
+        width="100%"
+      >
+        <Typography variant="h5" fontWeight="600" textAlign="center" mb={3}>
+          Signup
+        </Typography>
 
-        <div className="mb-4 mt-2">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#7a6ff0]"
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-        </div>
+        <TextField
+          fullWidth
+          label="First Name"
+          name="firstName"
+          variant="outlined"
+          margin="normal"
+          value={formData.firstName}
+          onChange={handleChange}
+        />
 
-        <div className="mb-4 mt-2">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#7a6ff0]"
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-        </div>
+        <TextField
+          fullWidth
+          label="Last Name"
+          name="lastName"
+          variant="outlined"
+          margin="normal"
+          value={formData.lastName}
+          onChange={handleChange}
+        />
 
-        <div className="mb-4 mt-2">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#7a6ff0]"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          type="email"
+          variant="outlined"
+          margin="normal"
+          value={formData.email}
+          onChange={handleChange}
+        />
 
-        <div className="mb-4 mt-2 relative">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:ring-2 focus:ring-[#7a6ff0]"
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <span className="absolute right-3 top-3 text-gray-400">
-            <Eye size={18} />
-          </span>
-        </div>
+        <TextField
+          fullWidth
+          label="Password"
+          name="password"
+          variant="outlined"
+          margin="normal"
+          type={showPassword ? "text" : "password"}
+          value={formData.password}
+          onChange={handleChange}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleTogglePassword}
+                  edge="end"
+                  size="large"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-        {/* Role selection */}
-        <div className="mb-4 mt-2">
-          <select
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#7a6ff0]"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
+        <TextField
+          select
+          fullWidth
+          label="Role"
+          name="role"
+          variant="outlined"
+          margin="normal"
+          value={formData.role}
+          onChange={handleChange}
+        >
+          <MenuItem value="user">User</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
+        </TextField>
 
-        {error && <span className="text-red-600 text-sm mb-4">{error}</span>}
+        {error && (
+          <Typography color="error" variant="body2" mt={1} mb={2}>
+            {error}
+          </Typography>
+        )}
 
-        <p className="text-xs text-gray-400 mt-4 mb-6">
-          By signing up or logging in, you consent to book-library's{" "}
-          <a href="#" className="underline">
-            Terms of Use
-          </a>{" "}
-          and{" "}
-          <a href="#" className="underline">
-            Privacy Policy
-          </a>
-          .
-        </p>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          display="block"
+          mb={2}
+        >
+          By signing up, you agree to our Terms of Use and Privacy Policy.
+        </Typography>
 
-        <button
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
           onClick={handleSignup}
           disabled={loading}
-          className="w-full bg-[#7a6ff6] hover:bg-[#6c61a6] text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-50"
+          size="large"
+          sx={{ mt: 1, mb: 2 }}
         >
-          {loading ? "Signing..." : "Signup"}
-        </button>
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Signup"}
+        </Button>
 
-        <div className="flex justify-between mt-4 text-sm">
-          <a className="text-[#7a6ff6] hover:underline" href="#">
-            Already Registered?
-          </a>
-          <Link className="text-[#7a6ff6] hover:underline" to={"/login"}>
+        <Box display="flex" justifyContent="space-between" mt={2} fontSize={14}>
+          <Typography color="textSecondary">
+            Already have an account?
+          </Typography>
+          <MuiLink
+            component={Link}
+            to="/login"
+            underline="hover"
+            color="primary"
+          >
             Login
-          </Link>
-        </div>
-      </div>
-    </div>
+          </MuiLink>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
