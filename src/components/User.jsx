@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import UserAppbar from "./User/UserAppbar";
+import { useAuth } from "../context/AuthProvider";
 
 function User() {
   const [books, setBooks] = useState([]);
   const [borrowedBooks, setBorrowedBooks] = useState([]);
+
+  // Get authenticated user info (assumes useAuth returns an array with user as first element)
+  const [authUser] = useAuth();
+  const userId = authUser?.id;
 
   const fetchBooks = async () => {
     try {
@@ -16,9 +21,13 @@ function User() {
   };
 
   const fetchBorrowedBooks = async () => {
+    if (!userId) return; // don't fetch if no user
     try {
       const { data } = await axios.get(
-        "http://localhost:4002/api/v1/user/borrowed"
+        "http://localhost:4002/api/v1/borrow/borrowed",
+        {
+          params: { userId }, // pass userId as query param
+        }
       );
       setBorrowedBooks(data || []);
     } catch (error) {
@@ -27,8 +36,15 @@ function User() {
   };
 
   const handleBorrow = async (bookId) => {
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
     try {
-      await axios.post(`http://localhost:4002/api/v1/user/borrow/${bookId}`);
+      await axios.post(`http://localhost:4002/api/v1/borrow/borrow`, {
+        bookId,
+        userId,
+      });
       fetchBooks();
       fetchBorrowedBooks();
     } catch (error) {
@@ -37,8 +53,15 @@ function User() {
   };
 
   const handleReturn = async (bookId) => {
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
     try {
-      await axios.post(`http://localhost:4002/api/v1/user/return/${bookId}`);
+      await axios.post(`http://localhost:4002/api/v1/borrow/return`, {
+        bookId,
+        userId,
+      });
       fetchBooks();
       fetchBorrowedBooks();
     } catch (error) {
@@ -49,7 +72,7 @@ function User() {
   useEffect(() => {
     fetchBooks();
     fetchBorrowedBooks();
-  }, []);
+  }, [userId]);
 
   return (
     <>
@@ -77,7 +100,7 @@ function User() {
                   const borrowed = book.borrowedCount || 0;
                   const available = book.totalCopies - borrowed;
                   const alreadyBorrowed = borrowedBooks.some(
-                    (b) => b.book.id === book.id
+                    (b) => b.Book?.id === book.id
                   );
 
                   return (
@@ -121,25 +144,30 @@ function User() {
             <p className="text-gray-600">You haven’t borrowed any books yet.</p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {borrowedBooks.map(({ book, borrowDate }) => (
-                <div
-                  key={book.id}
-                  className="border p-4 rounded shadow bg-white"
-                >
-                  <h4 className="text-lg font-bold">{book.title}</h4>
-                  <p className="text-sm text-gray-600">Author: {book.author}</p>
-                  <p className="text-sm text-gray-600">Genre: {book.genre}</p>
-                  <p className="text-sm text-gray-600">
-                    Borrowed On: {new Date(borrowDate).toLocaleDateString()}
-                  </p>
-                  <button
-                    onClick={() => handleReturn(book.id)}
-                    className="mt-2 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+              {borrowedBooks.map(({ Book, borrowDate }) => {
+                if (!Book) return null;
+                return (
+                  <div
+                    key={Book.id}
+                    className="border p-4 rounded shadow bg-white"
                   >
-                    Return
-                  </button>
-                </div>
-              ))}
+                    <h4 className="text-lg font-bold">{Book.title}</h4>
+                    <p className="text-sm text-gray-600">
+                      Author: {Book.author}
+                    </p>
+                    <p className="text-sm text-gray-600">Genre: {Book.genre}</p>
+                    <p className="text-sm text-gray-600">
+                      Borrowed On: {new Date(borrowDate).toLocaleDateString()}
+                    </p>
+                    <button
+                      onClick={() => handleReturn(Book.id)}
+                      className="mt-2 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+                    >
+                      Return
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
