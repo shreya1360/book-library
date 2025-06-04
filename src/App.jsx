@@ -5,6 +5,7 @@ import Signup from "./components/Signup";
 import Admin from "./components/Admin";
 import User from "./components/User";
 import { useAuth } from "./context/AuthProvider";
+import Profile from "./components/Profile";
 
 function App() {
   const [authUser] = useAuth();
@@ -36,6 +37,11 @@ function App() {
           element={authUser ? <Navigate to="/" /> : <Signup />}
         />
         <Route path="*" element={<Navigate to="/" />} />
+
+        <Route
+          path="/profile"
+          element={authUser ? <Profile /> : <Navigate to="/login" />}
+        />
       </Routes>
     </div>
   );
