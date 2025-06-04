@@ -38,7 +38,7 @@ function Admin() {
   const fetchBooks = async () => {
     try {
       const { data } = await axios.get("http://localhost:4002/api/v1/books");
-      setBooks(data.books || []);
+      setBooks(data || []);
     } catch (error) {
       console.error("Failed to fetch books", error);
     }
@@ -69,7 +69,7 @@ function Admin() {
     try {
       if (editingBook) {
         await axios.put(
-          `http://localhost:4002/api/v1/books/${editingBook._id}`,
+          `http://localhost:4002/api/v1/books/${editingBook.id}`,
           form
         );
       } else {
@@ -126,7 +126,7 @@ function Admin() {
                 const borrowed = book.borrowedCount || 0;
                 const available = book.totalCopies - borrowed;
                 return (
-                  <TableRow key={book._id}>
+                  <TableRow key={book.id}>
                     <TableCell>{book.title}</TableCell>
                     <TableCell>{book.author}</TableCell>
                     <TableCell>{book.genre}</TableCell>
@@ -145,7 +145,7 @@ function Admin() {
                         size="small"
                         variant="outlined"
                         color="error"
-                        onClick={() => handleDelete(book._id)}
+                        onClick={() => handleDelete(book.id)}
                       >
                         Delete
                       </Button>

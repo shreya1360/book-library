@@ -6,6 +6,7 @@ import Admin from "./components/Admin";
 import User from "./components/User";
 import { useAuth } from "./context/AuthProvider";
 import Profile from "./components/Profile";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   const [authUser] = useAuth();
@@ -41,6 +42,11 @@ function App() {
         <Route
           path="/profile"
           element={authUser ? <Profile /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/userprofile"
+          element={authUser ? <UserProfile /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>
