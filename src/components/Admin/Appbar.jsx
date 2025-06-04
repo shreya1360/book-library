@@ -49,7 +49,7 @@ function Appbar() {
     if (setting === "Logout") {
       try {
         const { data } = await axios.post(
-          "http://localhost:4002/api/v1/user/logout",
+          "https://book-lib-backend.onrender.com/api/v1/user/logout",
           {},
           { withCredentials: true }
         );

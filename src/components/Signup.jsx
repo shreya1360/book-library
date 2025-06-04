@@ -30,7 +30,7 @@ function Signup() {
     setError("");
     try {
       const { data } = await Axios.post(
-        "http://localhost:4002/api/v1/user/signup",
+        "https://book-lib-backend.onrender.com/api/v1/user/signup",
         {
           firstName: formData.firstName,
           lastName: formData.lastName,

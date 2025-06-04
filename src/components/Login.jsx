@@ -1,5 +1,15 @@
-import { Eye } from "lucide-react";
 import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Link as MuiLink,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import Axios from "axios";
 import { useAuth } from "../context/AuthProvider";
@@ -10,6 +20,7 @@ function Login() {
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,27 +31,30 @@ function Login() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleTogglePassword = () => {
+    setShowPassword((show) => !show);
+  };
+
   const handleLogin = async () => {
     setLoading(true);
     setError("");
 
     try {
       const { data } = await Axios.post(
-        "http://localhost:4002/api/v1/user/login",
+        "https://book-lib-backend.onrender.com/api/v1/user/login",
         {
           email: formData.email,
           password: formData.password,
         },
         {
-          withCredentials: true, // Required to receive httpOnly cookie
+          withCredentials: true, // Required for httpOnly cookie
         }
       );
 
-      // Save user & token to localStorage (optional)
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
 
-      setAuthUser(data.user); // Set in context
+      setAuthUser(data.user);
       alert(data.message || "Login successful");
       navigate("/");
     } catch (error) {
@@ -55,53 +69,94 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-black w-full max-w-md rounded-2xl p-6 shadow-lg bg-white">
-        <h1 className="text-center text-xl font-semibold">Login</h1>
+    <Box
+      minHeight="100vh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      px={2}
+      bgcolor="#f5f5f5"
+    >
+      <Box
+        bgcolor="white"
+        p={4}
+        borderRadius={3}
+        boxShadow={3}
+        maxWidth={400}
+        width="100%"
+      >
+        <Typography variant="h5" fontWeight="600" textAlign="center" mb={3}>
+          Login
+        </Typography>
 
-        <div className="mb-4 mt-4">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#7a6ff0]"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          type="email"
+          variant="outlined"
+          margin="normal"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+        />
 
-        <div className="mb-4 mt-2 relative">
-          <input
-            className="w-full bg-transparent border border-gray-600 rounded-md px-4 py-3 placeholder-gray-400 text-sm focus:ring-2 focus:ring-[#7a6ff0]"
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <span className="absolute right-3 top-3 text-gray-400">
-            <Eye size={18} />
-          </span>
-        </div>
+        <TextField
+          fullWidth
+          label="Password"
+          name="password"
+          variant="outlined"
+          margin="normal"
+          type={showPassword ? "text" : "password"}
+          value={formData.password}
+          onChange={handleChange}
+          autoComplete="current-password"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleTogglePassword}
+                  edge="end"
+                  size="large"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {error && (
+          <Typography color="error" variant="body2" mt={1} mb={2}>
+            {error}
+          </Typography>
+        )}
 
-        <button
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
           onClick={handleLogin}
           disabled={loading}
-          className="w-full bg-[#7a6ff6] hover:bg-[#6c61a6] text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-50"
+          size="large"
+          sx={{ mt: 2, mb: 1 }}
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+        </Button>
 
-        <div className="flex justify-between mt-4 text-sm">
-          <span className="text-gray-500">Don't have an account?</span>
-          <Link className="text-[#7a6ff6] hover:underline" to="/signup">
+        <Box display="flex" justifyContent="space-between" mt={2} fontSize={14}>
+          <Typography color="textSecondary">Don't have an account?</Typography>
+          <MuiLink
+            component={Link}
+            to="/signup"
+            underline="hover"
+            color="primary"
+          >
             Signup
-          </Link>
-        </div>
-      </div>
-    </div>
+          </MuiLink>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

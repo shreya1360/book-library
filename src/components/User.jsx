@@ -13,7 +13,9 @@ function User() {
 
   const fetchBooks = async () => {
     try {
-      const { data } = await axios.get("http://localhost:4002/api/v1/books");
+      const { data } = await axios.get(
+        "https://book-lib-backend.onrender.com/api/v1/books"
+      );
       setBooks(data || []);
     } catch (error) {
       console.error("Error fetching books", error);
@@ -24,7 +26,7 @@ function User() {
     if (!userId) return; // don't fetch if no user
     try {
       const { data } = await axios.get(
-        "http://localhost:4002/api/v1/borrow/borrowed",
+        "https://book-lib-backend.onrender.com/api/v1/borrow/borrowed",
         {
           params: { userId }, // pass userId as query param
         }
@@ -41,10 +43,13 @@ function User() {
       return;
     }
     try {
-      await axios.post(`http://localhost:4002/api/v1/borrow/borrow`, {
-        bookId,
-        userId,
-      });
+      await axios.post(
+        `https://book-lib-backend.onrender.com/api/v1/borrow/borrow`,
+        {
+          bookId,
+          userId,
+        }
+      );
       fetchBooks();
       fetchBorrowedBooks();
     } catch (error) {
@@ -58,10 +63,13 @@ function User() {
       return;
     }
     try {
-      await axios.post(`http://localhost:4002/api/v1/borrow/return`, {
-        bookId,
-        userId,
-      });
+      await axios.post(
+        `https://book-lib-backend.onrender.com/api/v1/borrow/return`,
+        {
+          bookId,
+          userId,
+        }
+      );
       fetchBooks();
       fetchBorrowedBooks();
     } catch (error) {

@@ -37,7 +37,9 @@ function Admin() {
 
   const fetchBooks = async () => {
     try {
-      const { data } = await axios.get("http://localhost:4002/api/v1/books");
+      const { data } = await axios.get(
+        "https://book-lib-backend.onrender.com/api/v1/books"
+      );
       setBooks(data || []);
     } catch (error) {
       console.error("Failed to fetch books", error);
@@ -69,11 +71,14 @@ function Admin() {
     try {
       if (editingBook) {
         await axios.put(
-          `http://localhost:4002/api/v1/books/${editingBook.id}`,
+          `https://book-lib-backend.onrender.com/api/v1/books/${editingBook.id}`,
           form
         );
       } else {
-        await axios.post("http://localhost:4002/api/v1/books", form);
+        await axios.post(
+          "https://book-lib-backend.onrender.com/api/v1/books",
+          form
+        );
       }
       fetchBooks();
       handleCloseDialog();
@@ -84,7 +89,9 @@ function Admin() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4002/api/v1/books/${id}`);
+      await axios.delete(
+        `https://book-lib-backend.onrender.com/api/v1/books/${id}`
+      );
       fetchBooks();
     } catch (error) {
       console.error("Delete failed", error);
